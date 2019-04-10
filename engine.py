@@ -7,6 +7,12 @@ import random
 import chess
 from pick import pick
 
+# Game meta
+__game_name__ = "Chess"
+__version__   = "1.0.0"
+__author__    = "Bharath Kumar Ravichandran"
+__license__   = "GNU GPL v3+"
+
 # Game state variables
 game_over = False
 player2   = "COMPUTER"
@@ -70,8 +76,8 @@ def print_meta():
     Function to print game's meta data
     '''
     print("\n")
-    print("Chess 1.0.0")
-    print("Copyright(C) Bharath Kumar Ravichandran")
+    print("{} {}".format(__game_name__, __version__))
+    print("Copyright(C) {}".format(__author__))
     print("License: GPL3+: GNU GPL version 3 or later")
 
 
@@ -79,7 +85,9 @@ def print_game_instructions():
     '''
     Function to print game instructions
     '''
-    pass
+    print(" Instructions to play:")
+    print(" * Enter all moves in UCI protocol. (Example: g1h3 and e7e8q incase of promotion)")
+    print(" * Enter q in input to quit the game.")
 
 
 def get_player2():
@@ -130,6 +138,7 @@ def render_board(board):
     '''
     clear()
     print_meta()
+    print_game_instructions()
     print("\n")
     print(board.unicode(borders=True))
     print("\n")
@@ -152,7 +161,7 @@ def get_player_move(board, player_turn):
     move_uci = None
     while(move_uci==None or move==None):
         try:
-            move_uci = input("Player{}::Enter your move (in UCI): ".format(player_turn))
+            move_uci = input("Player{}::Enter your move: ".format(player_turn))
             if move_uci and move_uci[0] == "q":
                 raise KeyboardInterrupt()
         except KeyboardInterrupt:
