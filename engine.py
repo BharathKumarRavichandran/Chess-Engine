@@ -149,9 +149,24 @@ def get_player_move(board, player_turn):
     Function to prompt current player's input.
     Moves piece and changes player_turn accordingly and returns.
     '''
-    move_uci = input("Player{}::Enter your move (in UCI): ".format(player_turn))
-    move = chess.Move.from_uci(move_uci)
-    
+    move_uci = None
+    while(move_uci==None or move==None):
+        try:
+            move_uci = input("Player{}::Enter your move (in UCI): ".format(player_turn))
+            if move_uci and move_uci[0] == "q":
+                raise KeyboardInterrupt()
+        except KeyboardInterrupt:
+            print("Closing game...")
+            sleep(1)
+            exit()
+        
+        try:
+            move = chess.Move.from_uci(move_uci)
+        except:
+            move = None
+            render_board(board)
+            print("Sorry, entered move is invalid. Please try again.")
+
     if move in board.legal_moves:
         board.push(move)
         render_board(board)
@@ -160,7 +175,7 @@ def get_player_move(board, player_turn):
     
     else:
         render_board(board)
-        print("Sorry, the entered move is not possible")
+        print("Sorry, entered move is invalid. Please try again.")
     
     return(player_turn)
       
@@ -169,6 +184,7 @@ def print_move(move_uci, player_turn, is_player_computer):
     '''
     Function to print past move and changes & returns player_turn accordingly
     '''
+    move_uci = str(move_uci)
     move_from = move_uci[:2]
     move_to = move_uci[2:4]
     promotion = move_uci[3]
@@ -197,8 +213,13 @@ while not game_over:
     while(player_turn==2):
 
         if(player2=="COMPUTER"):
-            player2_move_uci = get_opponent_move(board)
-            player2_move = chess.Move.from_uci(player2_move_uci)
+            player2_move_uci = str(get_opponent_move(board))
+            try:
+                player2_move = chess.Move.from_uci(player2_move_uci)
+            except:
+                print("Invalid move returned by computer.")
+                player2_move_uci = None
+                player2_move = None
             board.push(player2_move)
 
             player_turn = print_move(player2_move_uci, player_turn, True)
