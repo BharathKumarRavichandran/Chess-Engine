@@ -72,7 +72,7 @@ def print_meta():
     print("\n")
     print("Chess 1.0.0")
     print("Copyright(C) Bharath Kumar Ravichandran")
-    print("License : GPL3+: GNU GPL version 3 or later")
+    print("License: GPL3+: GNU GPL version 3 or later")
 
 
 def print_game_instructions():
@@ -131,7 +131,7 @@ def render_board(board):
     clear()
     print_meta()
     print("\n")
-    print(board)
+    print(board.unicode(borders=True))
     print("\n")
 
 
