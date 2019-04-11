@@ -13,10 +13,6 @@ __version__   = "1.0.0"
 __author__    = "Bharath Kumar Ravichandran"
 __license__   = "GNU GPL v3+"
 
-# Game state variables
-game_over = False
-player2   = "COMPUTER"
-
 
 # General functions
 def clear():
@@ -79,6 +75,7 @@ def print_meta():
     print("{} {}".format(__game_name__, __version__))
     print("Copyright(C) {}".format(__author__))
     print("License: GPL3+: GNU GPL version 3 or later")
+    return None
 
 
 def print_game_instructions():
@@ -87,7 +84,9 @@ def print_game_instructions():
     '''
     print(" Instructions to play:")
     print(" * Enter all moves in UCI protocol. (Example: g1h3 and e7e8q incase of promotion)")
+    print(" * Enter r in input to restart the game.")
     print(" * Enter q in input to quit the game.")
+    return None
 
 
 def get_player2():
@@ -101,14 +100,27 @@ def get_player2():
     return(player2)
 
 
+def prompt_two_option_pick(pick_title, pick_options):
+    '''
+    Function to display two option pick by passing title and options
+    It returns a boolean value 'True' for index 0 and 'False' for index 1
+    '''
+    pick_option, index = pick(pick_options, pick_title)
+    pick_bool = True if(index==0) else False
+    return(pick_bool)
+
+
 def initialize_game():
     '''
     Function to initialize all game state and data
     '''
-    global player2
     player2 = get_player2()
     board = chess.Board()
-    return board
+    data = {
+        'board': board,
+        'player2': player2
+    }
+    return(data)
 
 # Game functions
 def get_opponent_move(board):
@@ -142,6 +154,7 @@ def render_board(board):
     print("\n")
     print(board.unicode(borders=True))
     print("\n")
+    return None
 
 
 def whose_turn(board):
@@ -149,8 +162,8 @@ def whose_turn(board):
     Function to return the color of current player
     '''
     if board.turn:
-        return "WHITE"
-    return "BLACK"
+        return("WHITE")
+    return("BLACK")
 
 
 def get_player_move(board, player_turn):
@@ -159,15 +172,36 @@ def get_player_move(board, player_turn):
     Moves piece and changes player_turn accordingly and returns.
     '''
     move_uci = None
-    while(move_uci==None or move==None):
-        try:
-            move_uci = input("Player{}::Enter your move: ".format(player_turn))
-            if move_uci and move_uci[0] == "q":
-                raise KeyboardInterrupt()
-        except KeyboardInterrupt:
-            print("Closing game...")
-            sleep(1)
-            exit()
+    restart_game = False
+    
+    while(move_uci==None or move==None):  
+        move_uci = None
+        while(move_uci==None):
+            try:
+                move_uci = input("Player{}::Enter your move: ".format(player_turn))
+                
+                if move_uci and move_uci[0] == "q":
+                    pick_title = 'Do you want to quit the game? '
+                    pick_options = ['Yes', 'No']
+                    quit_game = prompt_two_option_pick(pick_title, pick_options)
+                    if(quit_game):
+                        raise KeyboardInterrupt()
+                    move_uci = None
+                    
+                elif move_uci and move_uci[0] == "r":
+                    pick_title = 'Do you want to restart the game? '
+                    pick_options = ['Yes', 'No']
+                    restart_game = prompt_two_option_pick(pick_title, pick_options)
+                    if(restart_game):
+                        data = {
+                            'player_turn': player_turn,
+                            'restart_game': restart_game
+                        }
+                        return(data)
+                    move_uci = None
+
+            except KeyboardInterrupt:
+                exit_game()
         
         try:
             move = chess.Move.from_uci(move_uci)
@@ -186,7 +220,11 @@ def get_player_move(board, player_turn):
         render_board(board)
         print("Sorry, entered move is invalid. Please try again.")
     
-    return(player_turn)
+    data = {
+        'player_turn': player_turn,
+        'restart_game': restart_game
+    }
+    return(data)
       
 
 def print_move(move_uci, player_turn, is_player_computer):
@@ -207,35 +245,72 @@ def print_move(move_uci, player_turn, is_player_computer):
     elif(player_turn==2 or is_player_computer):
         player_turn = 1
     
-    return player_turn
-  
-board = initialize_game()
-render_board(board)
+    return(player_turn)
 
 
-while not game_over:
-    player_turn = 1
-    
-    while(player_turn==1):
-        player_turn = get_player_move(board, player_turn)
-        
-    while(player_turn==2):
+def exit_game():
+    print("Closing game...")
+    sleep(1)
+    exit()
 
-        if(player2=="COMPUTER"):
-            player2_move_uci = str(get_opponent_move(board))
-            try:
-                player2_move = chess.Move.from_uci(player2_move_uci)
-            except:
-                print("Invalid move returned by computer.")
-                player2_move_uci = None
-                player2_move = None
-            board.push(player2_move)
+def start_game():
+    '''
+    Main function of the game which starts/runs the game
+    '''
+    while True:
+        # Game state variables
+        game_over    = False
+        player2      = "COMPUTER"
+        restart_game = False
 
-            player_turn = print_move(player2_move_uci, player_turn, True)
+        game_data = initialize_game()
+        board = game_data['board']
+        player2 = game_data['player2']
+
+        render_board(board)
+
+        while not(game_over or restart_game):
+            player_turn = 1
             
-        else:
-            player_turn = get_player_move(board, player_turn) 
+            while(player_turn==1 and restart_game==False):
+                move_data = get_player_move(board, player_turn)
+                player_turn = move_data['player_turn']
+                restart_game = move_data['restart_game']
+                
+            while(player_turn==2 and restart_game==False):
 
+                if(player2=="COMPUTER"):
+                    player2_move_uci = str(get_opponent_move(board))
+                    try:
+                        player2_move = chess.Move.from_uci(player2_move_uci)
+                    except:
+                        print("Invalid move returned by computer.")
+                        player2_move_uci = None
+                        player2_move = None
+                    board.push(player2_move)
 
-    game_over = board.is_game_over()
-        
+                    player_turn = print_move(player2_move_uci, player_turn, True)
+                    
+                else:
+                    move_data = get_player_move(board, player_turn)
+                    player_turn = move_data['player_turn']
+                    restart_game = move_data['restart_game']
+                    if(restart_game==True):
+                        continue
+
+            game_over = board.is_game_over()
+
+            if(game_over):
+                pick_title = 'Do you want to restart the game? '
+                pick_options = ['Yes', 'No']
+                restart_game = prompt_two_option_pick(pick_title, pick_options)
+                
+
+        if not restart_game:
+            return None  
+
+    return None  
+    
+    
+start_game()
+
