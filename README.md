@@ -25,5 +25,8 @@ It supports both single player and two player game. For single player game, you 
 4. Install dependencies - `pip3 install -r requirements.txt`
 5. Start/Run game - `python3 engine.py`
 
+### Author
+[Bharath Kumar Ravichandran](https://github.com/BharathKumarRavichandran/)
+
 ### License
 [GPLv3](LICENSE)
