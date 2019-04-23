@@ -34,11 +34,10 @@ def evaluate_board_score(board, move, is_player1_turn):
     Function to evaluate board score and return the board score
     '''
     score = random.random()
-    ## Check some things about this move:
+    # Evaluate board score by checking some things about the given move:
     # score += 10 if board.is_capture(move) else 0
     # To actually make the move:
     board.push(move)
-    # Now check some other things:
     for (piece, value) in [(chess.PAWN, 1), 
                            (chess.BISHOP, 4), 
                            (chess.KING, 0), 
@@ -49,7 +48,7 @@ def evaluate_board_score(board, move, is_player1_turn):
         score -= len(board.pieces(piece, not is_player1_turn)) * value
     score += 100 if board.is_checkmate() else 0
 
-    return score
+    return(score)
 
 
 def minimax (curDepth, nodeIndex, maxTurn, scores, targetDepth): 
@@ -67,11 +66,42 @@ def minimax (curDepth, nodeIndex, maxTurn, scores, targetDepth):
 
 
 # Game initialization functions
+def print_game_init_ascii_art():
+    print(r"""
+                                                                                        
+ ██████╗██╗  ██╗███████╗███████╗███████╗     ██╗    ██████╗     ██████╗ 
+██╔════╝██║  ██║██╔════╝██╔════╝██╔════╝    ███║   ██╔═████╗   ██╔═████╗
+██║     ███████║█████╗  ███████╗███████╗    ╚██║   ██║██╔██║   ██║██╔██║
+██║     ██╔══██║██╔══╝  ╚════██║╚════██║     ██║   ████╔╝██║   ████╔╝██║
+╚██████╗██║  ██║███████╗███████║███████║     ██║██╗╚██████╔╝██╗╚██████╔╝
+ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝     ╚═╝╚═╝ ╚═════╝ ╚═╝ ╚═════╝                                                           
+    
+    """)
+    return(None)
+
+
+def print_game_page_ascii_art():
+    print(r"""
+      
+  ______   __                                              __         ______        ______  
+ /      \ |  \                                           _/  \       /      \      /      \ 
+|  $$$$$$\| $$____    ______    _______   _______       |   $$      |  $$$$$$\    |  $$$$$$\
+| $$   \$$| $$    \  /      \  /       \ /       \       \$$$$      | $$$\| $$    | $$$\| $$
+| $$      | $$$$$$$\|  $$$$$$\|  $$$$$$$|  $$$$$$$        | $$      | $$$$\ $$    | $$$$\ $$
+| $$   __ | $$  | $$| $$    $$ \$$    \  \$$    \         | $$      | $$\$$\$$    | $$\$$\$$
+| $$__/  \| $$  | $$| $$$$$$$$ _\$$$$$$\ _\$$$$$$\       _| $$_  __ | $$_\$$$$ __ | $$_\$$$$
+ \$$    $$| $$  | $$ \$$     \|       $$|       $$      |   $$ \|  \ \$$  \$$$|  \ \$$  \$$$
+  \$$$$$$  \$$   \$$  \$$$$$$$ \$$$$$$$  \$$$$$$$        \$$$$$$ \$$  \$$$$$$  \$$  \$$$$$$ 
+                                                                                                                                                                                     
+    """)
+    return(None)
+
+
+
 def print_meta():
     '''
     Function to print game's meta data
     '''
-    print("\n")
     print("{} {}".format(__game_name__, __version__))
     print("Copyright(C) {}".format(__author__))
     print("License: GPL3+: GNU GPL version 3 or later")
@@ -149,6 +179,7 @@ def render_board(board):
     Function to clear game screen and re-render chessboard and restore game state
     '''
     clear()
+    print_game_page_ascii_art()
     print_meta()
     print_game_instructions()
     print("\n")
@@ -257,6 +288,8 @@ def start_game():
     '''
     Main function of the game which starts/runs the game
     '''
+    print_game_init_ascii_art()
+    sleep(2)
     while True:
         # Game state variables
         game_over    = False
